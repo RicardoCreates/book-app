@@ -1,7 +1,6 @@
 import GlobalStyle from "../styles";
 import { useState } from "react";
 import { initialBooks } from "@/lib/books";
-import Card from "@/components/Card";
 
 export default function App({ Component, pageProps }) {
   const [books, setBooks] = useState(initialBooks);
