@@ -30,7 +30,7 @@ const List = styled.ul`
 `;
 
 const ListItem = styled.li`
-  border: 4px solid black;
+  border: 1px solid skyblue;
   text-align: center;
   position: relative;
   list-style: none;
@@ -38,15 +38,16 @@ const ListItem = styled.li`
 
 const Headline = styled.h1`
   text-align: center;
+  color: skyblue;
 `;
 
 const StyledLink = styled(Link)`
   position: fixed;
 
-  background-color: lightsalmon;
+  background-color: skyblue;
 
   padding: 1rem;
-  border-radius: 14px;
+  border-radius: 5px;
 
   bottom: 2rem;
   left: ${({ $isHomepage }) => ($isHomepage ? null : "2rem")};
@@ -55,6 +56,6 @@ const StyledLink = styled(Link)`
   text-decoration: none;
 
   &:hover {
-    color: white;
+    color: black;
   }
 `;

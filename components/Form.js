@@ -23,7 +23,7 @@ export default function Form({ onSubmit, defaultData }) {
   return (
     <>
       <h2>Add Book</h2>
-      <form onSubmit={handleSubmit}>
+      <StyledForm onSubmit={handleSubmit}>
         <label htmlFor="title">Title</label>
         <input
           type="text"
@@ -31,8 +31,58 @@ export default function Form({ onSubmit, defaultData }) {
           name="title"
           defaultValue={defaultData?.title}
         />
+        <label htmlFor="author">Author</label>
+        <input
+          type="text"
+          id="author"
+          name="author"
+          defaultValue={defaultData?.author}
+        />
+        <label htmlFor="publishYear">publishYear</label>
+        <input
+          type="text"
+          id="publishYear"
+          name="publishYear"
+          defaultValue={defaultData?.publishYear}
+        />
+        <label htmlFor="description">description</label>
+        <input
+          type="text"
+          id="description"
+          name="description"
+          defaultValue={defaultData?.description}
+        />
+        <label htmlFor="genre">Genre</label>
+        <input
+          type="text"
+          id="genre"
+          name="genre"
+          defaultValue={defaultData?.genre}
+        />
+        <label htmlFor="pages">Pages</label>
+        <input
+          type="text"
+          id="pages"
+          name="pages"
+          defaultValue={defaultData?.pages}
+        />
+        <label htmlFor="cover">Cover</label>
+        <input
+          type="text"
+          id="cover"
+          name="cover"
+          defaultValue={defaultData?.cover}
+        />
         <button type="submit">Add Book</button>
-      </form>
+      </StyledForm>
     </>
   );
 }
+
+const StyledForm = styled.form`
+  display: flex;
+  flex-direction: column;
+
+  padding: 3rem;
+  gap: 1rem;
+`;
