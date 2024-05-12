@@ -9,7 +9,7 @@ export default function App({ Component, pageProps }) {
     setBooks([...books, newBook]);
   }
 
-  function handelDeleteBook(id) {
+  function handleDeleteBook(id) {
     setBooks(books.filter((book) => book.id !== id));
   }
 
@@ -20,7 +20,7 @@ export default function App({ Component, pageProps }) {
         {...pageProps}
         books={books}
         handleAddBook={handleAddBook}
-        handelDeleteBook={handelDeleteBook}
+        handleDeleteBook={handleDeleteBook}
       />
     </>
   );

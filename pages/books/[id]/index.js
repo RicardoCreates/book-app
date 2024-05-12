@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
 
-export default function BookPage({ books }) {
+export default function BookPage({ books, handleDeleteBook }) {
   const router = useRouter();
   const { id } = router.query;
 
@@ -17,6 +17,15 @@ export default function BookPage({ books }) {
       </div>
       <h2>{foundBook.title}</h2>
       <h3>{foundBook.description}</h3>
+      <button
+        type="button"
+        onClick={() => {
+          handleDeleteBook(id);
+          router.push("/");
+        }}
+      >
+        Delete Place
+      </button>
     </>
   );
 }
