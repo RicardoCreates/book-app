@@ -28,7 +28,7 @@ export default function BookPage({ books, handleDeleteBook }) {
             router.push("/");
           }}
         >
-          Delete Place
+          Delete Book
         </StyledButton>
       </LinkContainer>
     </Container>
