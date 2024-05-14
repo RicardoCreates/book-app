@@ -22,7 +22,7 @@ export default function Form({ onSubmit, defaultData }) {
 
   return (
     <>
-      <h2>Add Book</h2>
+      <StyledHeadline>Add Book</StyledHeadline>
       <StyledForm onSubmit={handleSubmit}>
         <label htmlFor="title">Title</label>
         <input
@@ -73,7 +73,7 @@ export default function Form({ onSubmit, defaultData }) {
           name="cover"
           defaultValue={defaultData?.cover}
         />
-        <button type="submit">Add Book</button>
+        <StyledButton type="submit">Add Book</StyledButton>
       </StyledForm>
     </>
   );
@@ -82,7 +82,29 @@ export default function Form({ onSubmit, defaultData }) {
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
+  align-items: center;
 
   padding: 3rem;
   gap: 1rem;
+`;
+
+const StyledHeadline = styled.h2`
+  text-align: center;
+`;
+
+const StyledButton = styled.button`
+  background-color: skyblue;
+
+  padding: 1rem;
+  border-radius: 5px;
+
+  bottom: 2rem;
+  left: ${({ $isHomepage }) => ($isHomepage ? null : "2rem")};
+  right: ${({ $isHomepage }) => ($isHomepage ? "2rem" : null)};
+
+  text-decoration: none;
+
+  &:hover {
+    color: black;
+  }
 `;
