@@ -2,14 +2,13 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import Link from "next/link";
+import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb"; // Importiere ObjectId
 
-export default function BookPage({ books, handleDeleteBook }) {
+export default function BookPage({ book, handleDeleteBook }) {
   const router = useRouter();
-  const { id } = router.query;
 
-  const foundBook = books.find((book) => book.id === id);
-
-  if (!foundBook) return null;
+  if (!book) return <p>Loading...</p>;
 
   return (
     <Container>
@@ -17,14 +16,14 @@ export default function BookPage({ books, handleDeleteBook }) {
         <StyledLink href="/">back</StyledLink>
         <h1>BookPage</h1>
         <div>
-          <Image alt="" src={foundBook.cover} width={300} height={300} />
+          <Image alt="" src={book.cover} width={300} height={300} />
         </div>
-        <h2>{foundBook.title}</h2>
-        <h3>{foundBook.description}</h3>
+        <h2>{book.title}</h2>
+        <h3>{book.description}</h3>
         <StyledButton
           type="button"
-          onClick={() => {
-            handleDeleteBook(id);
+          onClick={async () => {
+            await handleDeleteBook(book._id);
             router.push("/");
           }}
         >
@@ -80,3 +79,16 @@ const LinkContainer = styled.div`
 const Container = styled.section`
   padding: 1rem;
 `;
+
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+  const client = await clientPromise;
+  const db = client.db("book-app");
+  const book = await db.collection("books").findOne({ _id: new ObjectId(id) });
+
+  return {
+    props: {
+      book: JSON.parse(JSON.stringify(book)),
+    },
+  };
+}
