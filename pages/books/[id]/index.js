@@ -3,9 +3,9 @@ import { useRouter } from "next/router";
 import styled from "styled-components";
 import Link from "next/link";
 import clientPromise from "@/lib/mongodb";
-import { ObjectId } from "mongodb"; // Importiere ObjectId
+import { ObjectId } from "mongodb";
 
-export default function BookPage({ book, handleDeleteBook }) {
+export default function BookPage({ book }) {
   const router = useRouter();
 
   if (!book) return <p>Loading...</p>;
@@ -82,13 +82,31 @@ const Container = styled.section`
 
 export async function getServerSideProps(context) {
   const { id } = context.params;
-  const client = await clientPromise;
-  const db = client.db("book-app");
-  const book = await db.collection("books").findOne({ _id: new ObjectId(id) });
 
-  return {
-    props: {
-      book: JSON.parse(JSON.stringify(book)),
-    },
-  };
+  try {
+    const client = await clientPromise;
+    const db = client.db("book-app");
+    const book = await db
+      .collection("books")
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!book) {
+      return {
+        notFound: true,
+      };
+    }
+
+    return {
+      props: {
+        book: JSON.parse(JSON.stringify(book)),
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      props: {
+        error: "Failed to fetch the book",
+      },
+    };
+  }
 }
