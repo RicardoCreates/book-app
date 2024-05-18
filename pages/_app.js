@@ -26,6 +26,7 @@ export default function App({ Component, pageProps }) {
     const addedBook = await res.json();
     setBooks([...books, addedBook]);
   }
+
   async function handleDeleteBook(id) {
     try {
       const res = await fetch(`/api/books/${id}`, {

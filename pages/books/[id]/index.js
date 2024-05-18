@@ -5,24 +5,27 @@ import Link from "next/link";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-export default function BookPage({ book }) {
+const BookPage = ({ book }) => {
   const router = useRouter();
 
   if (!book) return <p>Loading...</p>;
 
   const handleDeleteBook = async (id) => {
     try {
+      console.log(`Attempting to delete book with id: ${id}`);
       const response = await fetch(`/api/books/${id}`, {
         method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete book");
+        const errorText = await response.text();
+        throw new Error(`Failed to delete book: ${errorText}`);
       }
 
+      console.log(`Successfully deleted book with id: ${id}`);
       router.push("/");
     } catch (error) {
-      console.error(error);
+      console.error(`Error deleting book: ${error.message}`);
     }
   };
 
@@ -47,7 +50,9 @@ export default function BookPage({ book }) {
       </LinkContainer>
     </Container>
   );
-}
+};
+
+export default BookPage;
 
 const StyledButton = styled.button`
   background-color: skyblue;
