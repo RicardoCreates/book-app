@@ -3,13 +3,58 @@ import { useRouter } from "next/router";
 import styled from "styled-components";
 import Link from "next/link";
 
-export default function BookPage({ books, handleDeleteBook }) {
+export default function BookPage({ books, handleDeleteBook, handleAddBook }) {
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [selectedName, setSelectedName] = useState("");
   const router = useRouter();
+  const { isReady } = router;
   const { id } = router.query;
+  const {
+    data: book,
+    isLoading,
+    error,
+    mutate,
+  } = useSWR(`/api/books/${id}`, { refreshInterval: 400 });
+  if (!session) {
+    return (
+      <>
+        <Link link="/" />
+        <p>You are not authorized to visit this page.</p>
+      </>
+    );
+  }
+  if (!isReady || isLoading || error) return <h2>Loading...</h2>;
 
-  const foundBook = books.find((book) => book.id === id);
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
 
-  if (!foundBook) return null;
+    const response = await toast.promise(
+      fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      }),
+      {
+        pending: "Upload is pending",
+        error: "Upload rejected 🤯",
+      }
+    );
+
+    const { url } = await response.json();
+
+    const imageData = {
+      ...book,
+    };
+    event.target.reset();
+
+    handleAddBook(imageData, id, mutate);
+    setSelectedName(null);
+  }
+
+  if (!book) return null;
+  if (status !== "authenticated") {
+    return <h1>Please Login</h1>;
+  }
 
   return (
     <Container>
