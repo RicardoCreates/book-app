@@ -10,10 +10,26 @@ export default function BookPage({ book }) {
 
   if (!book) return <p>Loading...</p>;
 
+  const handleDeleteBook = async (id) => {
+    try {
+      const response = await fetch(`/api/books/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete book");
+      }
+
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <Container>
       <LinkContainer>
-        <StyledLink href="/">back</StyledLink>
+        <StyledLink href="/">&larr; Back to Homepage</StyledLink>
         <h1>BookPage</h1>
         <div>
           <Image alt="" src={book.cover} width={300} height={300} />
@@ -24,7 +40,6 @@ export default function BookPage({ book }) {
           type="button"
           onClick={async () => {
             await handleDeleteBook(book._id);
-            router.push("/");
           }}
         >
           Delete Book
@@ -52,16 +67,12 @@ const StyledButton = styled.button`
 
 const StyledLink = styled(Link)`
   position: fixed;
-
   background-color: skyblue;
-
   padding: 1rem;
   border-radius: 14px;
-
   bottom: 2rem;
   left: ${({ $isHomepage }) => ($isHomepage ? null : "2rem")};
   right: ${({ $isHomepage }) => ($isHomepage ? "2rem" : null)};
-
   text-decoration: none;
 
   &:hover {
@@ -102,13 +113,11 @@ export async function getServerSideProps(context) {
       },
     };
   } catch (error) {
-    console.error(error);
+    console.error("Failed to fetch book:", error);
     return {
       props: {
-        error: "Failed to fetch the book",
+        error: "Failed to fetch book",
       },
     };
   }
 }
-
-// for vercel
