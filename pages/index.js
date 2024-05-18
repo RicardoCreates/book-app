@@ -23,10 +23,17 @@ export default function HomePage({ books }) {
 }
 
 export async function getServerSideProps() {
-  const res = await fetch("http://localhost:3000/api/books");
-  const books = await res.json();
-
-  return { props: { books } };
+  try {
+    const res = await fetch("http://localhost:3000/api/books");
+    if (!res.ok) {
+      throw new Error(`Failed to fetch books, status: ${res.status}`);
+    }
+    const books = await res.json();
+    return { props: { books } };
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    return { props: { books: [] } }; // Return an empty array in case of error
+  }
 }
 
 const List = styled.ul`
