@@ -2,30 +2,47 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import Link from "next/link";
+import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
-export default function BookPage({ books, handleDeleteBook }) {
+const BookPage = ({ book }) => {
   const router = useRouter();
-  const { id } = router.query;
 
-  const foundBook = books.find((book) => book.id === id);
+  if (!book) return <p>Loading...</p>;
 
-  if (!foundBook) return null;
+  const handleDeleteBook = async (id) => {
+    try {
+      console.log(`Attempting to delete book with id: ${id}`);
+      const response = await fetch(`/api/books/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete book: ${errorText}`);
+      }
+
+      console.log(`Successfully deleted book with id: ${id}`);
+      router.push("/");
+    } catch (error) {
+      console.error(`Error deleting book: ${error.message}`);
+    }
+  };
 
   return (
     <Container>
       <LinkContainer>
-        <StyledLink href="/">back</StyledLink>
+        <StyledLink href="/">&larr; Back to Homepage</StyledLink>
         <h1>BookPage</h1>
         <div>
-          <Image alt="" src={foundBook.cover} width={300} height={300} />
+          <Image alt="" src={book.cover} width={300} height={300} />
         </div>
-        <h2>{foundBook.title}</h2>
-        <h3>{foundBook.description}</h3>
+        <h2>{book.title}</h2>
+        <h3>{book.description}</h3>
         <StyledButton
           type="button"
-          onClick={() => {
-            handleDeleteBook(id);
-            router.push("/");
+          onClick={async () => {
+            await handleDeleteBook(book._id);
           }}
         >
           Delete Book
@@ -33,7 +50,9 @@ export default function BookPage({ books, handleDeleteBook }) {
       </LinkContainer>
     </Container>
   );
-}
+};
+
+export default BookPage;
 
 const StyledButton = styled.button`
   background-color: skyblue;
@@ -53,16 +72,12 @@ const StyledButton = styled.button`
 
 const StyledLink = styled(Link)`
   position: fixed;
-
   background-color: skyblue;
-
   padding: 1rem;
   border-radius: 14px;
-
   bottom: 2rem;
   left: ${({ $isHomepage }) => ($isHomepage ? null : "2rem")};
   right: ${({ $isHomepage }) => ($isHomepage ? "2rem" : null)};
-
   text-decoration: none;
 
   &:hover {
@@ -80,3 +95,34 @@ const LinkContainer = styled.div`
 const Container = styled.section`
   padding: 1rem;
 `;
+
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+
+  try {
+    const client = await clientPromise;
+    const db = client.db("book-app");
+    const book = await db
+      .collection("books")
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!book) {
+      return {
+        notFound: true,
+      };
+    }
+
+    return {
+      props: {
+        book: JSON.parse(JSON.stringify(book)),
+      },
+    };
+  } catch (error) {
+    console.error("Failed to fetch book:", error);
+    return {
+      props: {
+        error: "Failed to fetch book",
+      },
+    };
+  }
+}
