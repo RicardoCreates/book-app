@@ -8,10 +8,10 @@ export default function HomePage({ books }) {
       <Headline>Book App</Headline>
       <List>
         {books.map((book) => (
-          <Link key={book._id} href={`/books/${book._id}`}>
-            <ListItem>
+          <Link key={book._id} href={`/books/${book._id}`} passHref>
+            <StyledListItem>
               <Card book={book} />
-            </ListItem>
+            </StyledListItem>
           </Link>
         ))}
       </List>
@@ -43,11 +43,18 @@ const List = styled.ul`
   gap: 1rem;
 `;
 
-const ListItem = styled.li`
+const StyledListItem = styled.li`
   border: 1px solid skyblue;
   text-align: center;
   position: relative;
   list-style: none;
+  cursor: pointer;
+  padding: 1rem;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  &:hover {
+    background-color: lightgray;
+  }
 `;
 
 const Headline = styled.h1`
@@ -64,7 +71,6 @@ const StyledLink = styled(Link)`
   left: ${({ $isHomepage }) => ($isHomepage ? null : "2rem")};
   right: ${({ $isHomepage }) => ($isHomepage ? "2rem" : null)};
   text-decoration: none;
-
   &:hover {
     color: black;
   }

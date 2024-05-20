@@ -2,38 +2,44 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
 export default async function handler(req, res) {
-  const {
-    query: { id },
-    method,
-  } = req;
-
-  console.log(`Received request to ${method} book with id: ${id}`);
+  const { id } = req.query;
+  const method = req.method;
 
   const client = await clientPromise;
   const db = client.db("book-app");
 
-  switch (method) {
-    case "DELETE":
-      try {
+  try {
+    let book;
+    if (ObjectId.isValid(id)) {
+      book = await db.collection("books").findOne({ _id: new ObjectId(id) });
+    } else {
+      book = await db.collection("books").findOne({ _id: id });
+    }
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    switch (method) {
+      case "GET":
+        res.status(200).json(book);
+        break;
+      case "DELETE":
         const result = await db
           .collection("books")
-          .deleteOne({ _id: new ObjectId(id) });
-        console.log(`Delete result: ${JSON.stringify(result)}`);
+          .deleteOne({ _id: book._id });
         if (result.deletedCount === 1) {
           res.status(200).json({ success: true });
         } else {
           res.status(404).json({ success: false, message: "Book not found" });
         }
-      } catch (error) {
-        console.error(`Failed to delete book: ${error.message}`);
-        res
-          .status(500)
-          .json({ success: false, message: "Failed to delete book" });
-      }
-      break;
-    default:
-      res.setHeader("Allow", ["DELETE"]);
-      res.status(405).end(`Method ${method} Not Allowed`);
-      break;
+        break;
+      default:
+        res.setHeader("Allow", ["GET", "DELETE"]);
+        res.status(405).end(`Method ${method} Not Allowed`);
+    }
+  } catch (error) {
+    console.error(`Failed to handle book with id: ${id}`, error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
