@@ -1,33 +1,19 @@
 import Form from "@/components/Form";
 import Link from "next/link";
 import styled from "styled-components";
+import { useRouter } from "next/router";
 
-export default function CreatePage() {
-  const handleAddBook = async (book) => {
-    try {
-      const response = await fetch("/api/books", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(book),
-      });
+export default function CreatePage({ handleAddBook }) {
+  const router = useRouter();
 
-      if (!response.ok) {
-        throw new Error("Failed to add book");
-      }
-
-      const newBook = await response.json();
-      console.log("Book added successfully:", newBook);
-    } catch (error) {
-      console.error(error);
-    }
+  const handleFormSubmit = async (book) => {
+    await handleAddBook(book);
   };
 
   return (
     <>
       <StyledLink href="/">&larr; Back to Homepage</StyledLink>
-      <Form onSubmit={handleAddBook} />
+      <Form onSubmit={handleFormSubmit} />
     </>
   );
 }
@@ -38,10 +24,8 @@ const StyledLink = styled(Link)`
   padding: 1rem;
   border-radius: 14px;
   bottom: 2rem;
-  left: ${({ $isHomepage }) => ($isHomepage ? null : "2rem")};
-  right: ${({ $isHomepage }) => ($isHomepage ? "2rem" : null)};
+  left: 2rem;
   text-decoration: none;
-
   &:hover {
     color: black;
   }

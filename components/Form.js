@@ -1,23 +1,17 @@
-import { useRouter } from "next/router";
 import styled from "styled-components";
-import { nanoid } from "nanoid";
 
 export default function Form({ onSubmit, defaultData }) {
-  const router = useRouter();
-
   function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
 
-    // const id = defaultData.id || nanoid();
-    const id = defaultData?.id || nanoid();
-    const bookData = { ...data, id };
+    // Ensure publishYear and pages are numbers
+    data.publishYear = parseInt(data.publishYear, 10);
+    data.pages = parseInt(data.pages, 10);
 
-    onSubmit(bookData);
-
-    router.push("/");
+    onSubmit(data);
   }
 
   return (
@@ -25,54 +19,60 @@ export default function Form({ onSubmit, defaultData }) {
       <StyledHeadline>Add Book</StyledHeadline>
       <StyledContainer>
         <StyledForm onSubmit={handleSubmit}>
-          <label htmlFor="title">Title</label>
-          <input
+          <StyledLabel htmlFor="title">Title</StyledLabel>
+          <StyledInput
             type="text"
             id="title"
             name="title"
             defaultValue={defaultData?.title}
+            required
           />
-          <label htmlFor="author">Author</label>
-          <input
+          <StyledLabel htmlFor="author">Author</StyledLabel>
+          <StyledInput
             type="text"
             id="author"
             name="author"
             defaultValue={defaultData?.author}
+            required
           />
-          <label htmlFor="publishYear">publishYear</label>
-          <input
-            type="text"
+          <StyledLabel htmlFor="publishYear">Publish Year</StyledLabel>
+          <StyledInput
+            type="number"
             id="publishYear"
             name="publishYear"
             defaultValue={defaultData?.publishYear}
+            required
           />
-          <label htmlFor="description">description</label>
-          <input
-            type="text"
+          <StyledLabel htmlFor="description">Description</StyledLabel>
+          <StyledTextarea
             id="description"
             name="description"
             defaultValue={defaultData?.description}
+            required
           />
-          <label htmlFor="genre">Genre</label>
-          <input
+          <StyledLabel htmlFor="genre">Genre</StyledLabel>
+          <StyledInput
             type="text"
             id="genre"
             name="genre"
             defaultValue={defaultData?.genre}
+            required
           />
-          <label htmlFor="pages">Pages</label>
-          <input
-            type="text"
+          <StyledLabel htmlFor="pages">Pages</StyledLabel>
+          <StyledInput
+            type="number"
             id="pages"
             name="pages"
             defaultValue={defaultData?.pages}
+            required
           />
-          <label htmlFor="cover">Cover</label>
-          <input
+          <StyledLabel htmlFor="cover">Cover</StyledLabel>
+          <StyledInput
             type="text"
             id="cover"
             name="cover"
             defaultValue={defaultData?.cover}
+            required
           />
           <StyledButton type="submit">Add Book</StyledButton>
         </StyledForm>
@@ -85,38 +85,72 @@ const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid black;
-  border-radius: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 2rem;
+  gap: 1.5rem;
+  max-width: 500px;
+  margin: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+`;
 
-  padding: 3rem;
-  gap: 1rem;
+const StyledLabel = styled.label`
+  align-self: flex-start;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+`;
+
+const StyledInput = styled.input`
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  &:focus {
+    border-color: #0070f3;
+    outline: none;
+  }
+`;
+
+const StyledTextarea = styled.textarea`
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  resize: vertical;
+  height: 100px;
+  &:focus {
+    border-color: #0070f3;
+    outline: none;
+  }
 `;
 
 const StyledHeadline = styled.h2`
   text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
 `;
 
 const StyledButton = styled.button`
-  background-color: skyblue;
-
-  padding: 1rem;
+  background-color: #0070f3;
+  color: white;
+  padding: 0.75rem 1.5rem;
   border-radius: 5px;
-
-  bottom: 2rem;
-  left: ${({ $isHomepage }) => ($isHomepage ? null : "2rem")};
-  right: ${({ $isHomepage }) => ($isHomepage ? "2rem" : null)};
-
-  text-decoration: none;
-
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
   &:hover {
-    color: black;
+    background-color: #005bb5;
   }
 `;
 
 const StyledContainer = styled.div`
+  padding: 1rem;
+  margin: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
-  margin: 1rem;
 `;

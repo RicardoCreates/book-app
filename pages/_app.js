@@ -1,16 +1,18 @@
 import GlobalStyle from "../styles";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function App({ Component, pageProps }) {
   const [books, setBooks] = useState([]);
+  const router = useRouter();
+
+  const fetchBooks = async () => {
+    const res = await fetch("/api/books");
+    const data = await res.json();
+    setBooks(data);
+  };
 
   useEffect(() => {
-    async function fetchBooks() {
-      const res = await fetch("/api/books");
-      const data = await res.json();
-      setBooks(data);
-    }
-
     fetchBooks();
   }, []);
 
@@ -23,8 +25,13 @@ export default function App({ Component, pageProps }) {
       body: JSON.stringify(newBook),
     });
 
-    const addedBook = await res.json();
-    setBooks([...books, addedBook]);
+    if (res.ok) {
+      const addedBook = await res.json();
+      setBooks((prevBooks) => [...prevBooks, addedBook]); // Update state with the new book
+      router.push("/"); // Navigate to the homepage
+    } else {
+      console.error("Failed to add the book");
+    }
   }
 
   async function handleDeleteBook(id) {
@@ -34,7 +41,8 @@ export default function App({ Component, pageProps }) {
       });
 
       if (res.ok) {
-        setBooks(books.filter((book) => book._id !== id));
+        setBooks((prevBooks) => prevBooks.filter((book) => book._id !== id)); // Update state after deleting the book
+        router.push("/"); // Navigate to the homepage
       } else {
         console.error("Failed to delete the book");
       }

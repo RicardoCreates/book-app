@@ -1,50 +1,29 @@
+import { fetchBookData } from "@/lib/fetchBookData";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import Link from "next/link";
-import clientPromise from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
 
-const BookPage = ({ book }) => {
+const BookPage = ({ book, handleDeleteBook }) => {
   const router = useRouter();
 
   if (!book) return <p>Loading...</p>;
 
-  const handleDeleteBook = async (id) => {
-    try {
-      console.log(`Attempting to delete book with id: ${id}`);
-      const response = await fetch(`/api/books/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to delete book: ${errorText}`);
-      }
-
-      console.log(`Successfully deleted book with id: ${id}`);
-      router.push("/");
-    } catch (error) {
-      console.error(`Error deleting book: ${error.message}`);
-    }
+  const handleDelete = async (id) => {
+    await handleDeleteBook(id);
   };
 
   return (
     <Container>
       <LinkContainer>
         <StyledLink href="/">&larr; Back to Homepage</StyledLink>
-        <h1>BookPage</h1>
+        <h1>{book.title}</h1>
         <div>
           <Image alt="" src={book.cover} width={300} height={300} />
         </div>
-        <h2>{book.title}</h2>
+        <h2>{book.author}</h2>
         <h3>{book.description}</h3>
-        <StyledButton
-          type="button"
-          onClick={async () => {
-            await handleDeleteBook(book._id);
-          }}
-        >
+        <StyledButton onClick={() => handleDelete(book._id)}>
           Delete Book
         </StyledButton>
       </LinkContainer>
@@ -54,17 +33,32 @@ const BookPage = ({ book }) => {
 
 export default BookPage;
 
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+
+  try {
+    const book = await fetchBookData(id);
+
+    if (!book) {
+      return { notFound: true };
+    }
+
+    return {
+      props: { book: JSON.parse(JSON.stringify(book)) },
+    };
+  } catch (error) {
+    console.error("Failed to fetch book:", error);
+    return { props: { error: "Failed to fetch book" } };
+  }
+}
+
 const StyledButton = styled.button`
   background-color: skyblue;
+  padding: 1rem;
+  border-radius: 14px;
   border: none;
   cursor: pointer;
   align-self: center;
-  border-radius: 14px;
-  padding: 1rem;
-  text-decoration: none;
-  color: grey;
-  font-size: 1rem;
-
   &:hover {
     color: black;
   }
@@ -76,10 +70,8 @@ const StyledLink = styled(Link)`
   padding: 1rem;
   border-radius: 14px;
   bottom: 2rem;
-  left: ${({ $isHomepage }) => ($isHomepage ? null : "2rem")};
-  right: ${({ $isHomepage }) => ($isHomepage ? "2rem" : null)};
+  left: 2rem;
   text-decoration: none;
-
   &:hover {
     color: black;
   }
@@ -95,34 +87,3 @@ const LinkContainer = styled.div`
 const Container = styled.section`
   padding: 1rem;
 `;
-
-export async function getServerSideProps(context) {
-  const { id } = context.params;
-
-  try {
-    const client = await clientPromise;
-    const db = client.db("book-app");
-    const book = await db
-      .collection("books")
-      .findOne({ _id: new ObjectId(id) });
-
-    if (!book) {
-      return {
-        notFound: true,
-      };
-    }
-
-    return {
-      props: {
-        book: JSON.parse(JSON.stringify(book)),
-      },
-    };
-  } catch (error) {
-    console.error("Failed to fetch book:", error);
-    return {
-      props: {
-        error: "Failed to fetch book",
-      },
-    };
-  }
-}
