@@ -19,7 +19,7 @@ const BookPage = ({ book, handleDeleteBook }) => {
         <StyledLink href="/">&larr; Back to Homepage</StyledLink>
         <h1>{book.title}</h1>
         <div>
-          <Image alt="" src={book.cover} width={300} height={300} />
+          <Image alt="" src={`/${book.cover}`} width={300} height={300} />
         </div>
         <h2>{book.author}</h2>
         <h3>{book.description}</h3>
